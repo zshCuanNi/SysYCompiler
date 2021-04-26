@@ -1,0 +1,34 @@
+TOKEN-TYPE          TOKEN-VALUE
+-------------------------------------------------
+T_DECIMAL_CONST     4660
+T_DECIMAL_CONST     11
+T_DECIMAL_CONST     1234
+T_IDENTIFIER        f
+=                   =
+T_IDENTIFIER        g
+/                   /
+T_IDENTIFIER        h
+;                   ;
+T_IDENTIFIER        i
+(                   (
+)                   )
+;                   ;
+/                   /
+
+Error at line 10 : Unrecognized character
+
+/                   /
+T_IDENTIFIER        j
+(                   (
+)                   )
+;                   ;
+T_IDENTIFIER        l
+(                   (
+)                   )
+;                   ;
+T_IDENTIFIER        m
+=                   =
+T_IDENTIFIER        n
++                   +
+T_IDENTIFIER        p
+;                   ;

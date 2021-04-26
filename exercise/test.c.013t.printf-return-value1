@@ -1,0 +1,85 @@
+
+;; Function factor (factor, funcdef_no=0, decl_uid=2248, cgraph_uid=0, symbol_order=0)
+
+factor (int n)
+{
+  int D.2259;
+
+  <bb 2> [0.00%]:
+  if (n <= 1)
+    goto <bb 3>; [0.00%]
+  else
+    goto <bb 4>; [0.00%]
+
+  <bb 3> [0.00%]:
+  D.2259 = 1;
+  goto <bb 5> (<L2>); [0.00%]
+
+  <bb 4> [0.00%]:
+  _1 = n + -1;
+  _2 = factor (_1);
+  D.2259 = n * _2;
+
+<L2> [0.00%]:
+  return D.2259;
+
+}
+
+
+
+;; Function main (main, funcdef_no=1, decl_uid=2250, cgraph_uid=1, symbol_order=1)
+
+main ()
+{
+  int i;
+  int D.2266;
+
+  <bb 2> [0.00%]:
+  i = 0;
+  goto <bb 9>; [0.00%]
+
+  <bb 3> [0.00%]:
+  i = i + 1;
+  if (i == 3)
+    goto <bb 5>; [0.00%]
+  else
+    goto <bb 4>; [0.00%]
+
+  <bb 4> [0.00%]:
+  if (i == 5)
+    goto <bb 5>; [0.00%]
+  else
+    goto <bb 6>; [0.00%]
+
+  <bb 5> [0.00%]:
+  // predicted unlikely by continue predictor.
+  goto <bb 9>; [0.00%]
+
+  <bb 6> [0.00%]:
+  if (i == 8)
+    goto <bb 7>; [0.00%]
+  else
+    goto <bb 8>; [0.00%]
+
+  <bb 7> [0.00%]:
+  goto <bb 10>; [0.00%]
+
+  <bb 8> [0.00%]:
+  _1 = factor (i);
+  printf ("%d! = %d", i, _1);
+
+  <bb 9> [0.00%]:
+  if (i <= 9)
+    goto <bb 3>; [0.00%]
+  else
+    goto <bb 10>; [0.00%]
+
+  <bb 10> [0.00%]:
+  D.2266 = 0;
+
+<L8> [0.00%]:
+  return D.2266;
+
+}
+
+
