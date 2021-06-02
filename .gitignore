@@ -1,1 +1,10 @@
 exercise/
+front_ori/
+front/compiler
+.vscode/
+
+# ignore all files with these extensions
+*.yy.cpp
+*.tab.hpp
+*.tab.cpp
+*.eeyore
