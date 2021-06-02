@@ -14,9 +14,9 @@ using std::string;
 int main (int argc, char **argv) {
     FILE *eeyoreOut;
 
-    yyin = fopen(argv[1], "r");
+    yyin = fopen(argv[3], "r");
     
-    eeyoreOut = fopen(argv[2], "w+");
+    eeyoreOut = fopen(argv[5], "w+");
 
     assert(yyin);
     assert(eeyoreOut);
