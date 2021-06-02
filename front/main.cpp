@@ -9,10 +9,11 @@ int yyparse(void);
 int yylex(void);
 SymbolTable symTab;
 
+FILE *eeyoreOut;
+
 using std::string;
 
 int main (int argc, char **argv) {
-    FILE *eeyoreOut;
 
     yyin = fopen(argv[3], "r");
     

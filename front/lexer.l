@@ -24,11 +24,11 @@ hexadecimal_const       (0[xX][0-9a-fA-F]+)
 
 %%
 
-\n                      { p("enter"); }
-{white_space}           { p("space"); /* ignore white spaces */ }
-{include_statement}     { p("include", yytext); /* ignore include statements */ }
-{multi_line_comment}    { p("multi_comment", yytext); /* skip multi-line comments */ }
-{single_line_comment}   { p("single_comment", yytext); /* skip single line comments */ }
+\n                      {  }
+{white_space}           { /* ignore white spaces */ }
+{include_statement}     { /* ignore include statements */ }
+{multi_line_comment}    { /* skip multi-line comments */ }
+{single_line_comment}   { /* skip single line comments */ }
 
 {operator}              { p("op", yytext); return yytext[0]; }
 
@@ -58,7 +58,6 @@ hexadecimal_const       (0[xX][0-9a-fA-F]+)
 %%
 
 void p(const char* token, const char *value) {
-    return;
     printf("%s", token);
     if (value)
         printf(", %s", value);
