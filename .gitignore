@@ -8,3 +8,4 @@ front/compiler
 *.tab.hpp
 *.tab.cpp
 *.eeyore
+*.md
