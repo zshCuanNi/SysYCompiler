@@ -161,7 +161,7 @@ void NodeVarDecl::genCode() {
         code = genVarDecl(entryVar, false);
     else if (!value.empty()) {          // initialize variable
         if (!ifArray)                   // single value
-            code += value[0]->code + "\t" + entryVar.nameEeyore + "=" + value[0]->nameEeyore +"\n";
+            code += value[0]->code + "\t" + entryVar.nameEeyore + " = " + value[0]->nameEeyore +"\n";
         else                            // an array
             for (int i = 0; i < value.size(); i++)
                 code += value[i]->code + "\t" + entryVar.nameEeyore + "[" + to_string(i * SIZE_OF_INT) + "] = " + value[i]->nameEeyore + "\n"; 
@@ -327,6 +327,7 @@ void NodeIfElseStmt::setMember( NodeConditionExp *_condition,
 void NodeIfElseStmt::genCode() {
     fprintf(stdout, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
+    code = condition->code;
     if (ifExistElse) {
         code += "l" + to_string(ifLabel) + ":\n" +
                 ifStatement->code;
@@ -372,7 +373,7 @@ void NodeWhileStmt::setMember(  NodeConditionExp *_condition,
 
 void NodeWhileStmt::genCode() {
     fprintf(stdout, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
-    
+
     code = "l" + to_string(whileStartLabel) + ":\n" +
             condition->code +
             "l" + to_string(loopLabel) + ":\n" +

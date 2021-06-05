@@ -46,8 +46,6 @@ void yyerror(const char *msg, int lineno = yylineno) {
 %type<rettype> FuncType
 
 
-%nonassoc T_NELSE
-
 %%
 
 Root
@@ -131,12 +129,12 @@ Stmt
     | ';'                               { $$ = new NodeStatement(); }
     | Exp ';'                           { $$ = new NodeExpressionStmt($1); }
     | Block                             { $$ = new NodeStatement($1); }
-    | T_IF '(' FakeIf Cond ')' Stmt %prec T_NELSE
-                                        { $$->setMember($4, $6); }
+    | T_IF '(' FakeIf Cond ')' Stmt
+                                        { $3->setMember($4, $6); $$ = $3; }
     | T_IF '(' FakeIf Cond ')' Stmt T_ELSE Stmt
-                                        { $$->setMember($4, $6, $8); }
+                                        { $3->setMember($4, $6, $8); $$ = $3; }
     | T_WHILE '(' FakeWhile Cond ')' Stmt
-                                        { $$->setMember($4, $6); }
+                                        { $3->setMember($4, $6); $$ = $3; }
     | T_BREAK ';'                       { $$ = new NodeBreakStmt(); }
     | T_CONTINUE ';'                    { $$ = new NodeContinueStmt(); }
     | T_RETURN ';'                      { $$ = new NodeReturnStmt(); }

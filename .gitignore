@@ -1,7 +1,9 @@
 exercise/
 front_ori/
 front/compiler
+front/'LC_MEASUREMENT=zh_CN.UTF-8'
 .vscode/
+
 
 # ignore all files with these extensions
 *.yy.cpp
