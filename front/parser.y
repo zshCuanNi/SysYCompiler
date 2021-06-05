@@ -4,6 +4,7 @@
 #include <string>
 #include <stdio.h>
 
+extern FILE *logOut;
 int yyparse(void);
 int yylex(void);
 int yywrap() { return 1; }

@@ -1,12 +1,15 @@
 exercise/
 front_ori/
 front/compiler
-front/'LC_MEASUREMENT=zh_CN.UTF-8'
+front/LC_MEASUREMENT=zh_CN.UTF-8
 .vscode/
+eeyore_gen/
 
 
 # ignore all files with these extensions
 *.yy.cpp
 *.tab.hpp
 *.tab.cpp
+*.log
 *.eeyore
+*.sh

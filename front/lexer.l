@@ -8,6 +8,8 @@
 #include "stdio.h"
 #include <string.h>
 
+extern FILE *logOut;
+
 void p(const char *token, const char *value = nullptr);
 // void lex_error(std::string msg, int line);
 %}
@@ -58,8 +60,8 @@ hexadecimal_const       (0[xX][0-9a-fA-F]+)
 %%
 
 void p(const char* token, const char *value) {
-    printf("%s", token);
+    fprintf(logOut, "%s", token);
     if (value)
-        printf(", %s", value);
-    printf("\n");
+        fprintf(logOut, ", %s", value);
+    fprintf(logOut, "\n");
 }
