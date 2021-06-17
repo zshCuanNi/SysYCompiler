@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdio>
 
+#define SIZE_OF_INT 4
+
 enum NodeType {
     tINIT,      tNUM,       tARRAY,     tFUNCCALL,  tVAR,
     tPOINTER,   tUNKNOWN,   tCOND
@@ -77,11 +79,10 @@ public:
                 NodeExpression *_valueFirst = nullptr,
                 bool _ifCosnt = false,
                 bool _ifPointer = false,
-                bool _ifParam = false
-                );
+                bool _ifParam = false);
     void setWidth(NodeExpression *_widthFirstDim);
-    vector<NodeExpression *> setValue(  vector<int> &_width,
-                                        NodeExpression *_valueFirst);
+    vector<NodeExpression *> setValue(vector<int> &_width,
+                                      NodeExpression *_valueFirst);
     void genCode();
 };
 
@@ -92,9 +93,9 @@ public:
     string name;                        // name of the function
     ReturnType returnType;              // type for return value
 
-    NodeFuncDecl(   ReturnType _returnType,
-                    const char *_name,
-                    Node *_body);
+    NodeFuncDecl(ReturnType _returnType,
+                 const char *_name,
+                 Node *_body);
     void addReturn(bool ifAppend);
     void genCode();
 };
@@ -102,9 +103,9 @@ public:
 class NodeStatement : public Node {
 public:
     explicit NodeStatement(Node *_son = nullptr);
-    virtual void setMember( NodeConditionExp *_condition,
-                            Node *_trueStatement,
-                            Node *_falseStatement = nullptr);// for if-else and while, set member variables to update information
+    virtual void setMember(NodeConditionExp *_condition,
+                           Node *_trueStatement,
+                           Node *_falseStatement = nullptr);// for if-else and while, set member variables to update information
     void genCode();
 };
 
@@ -113,8 +114,8 @@ public:
     NodeExpression *leftVar;            // left variable
     NodeExpression *rightExp;           // right expression for assigment
 
-    NodeAssignStmt( NodeExpression *_leftVar,
-                    NodeExpression *_rightExp);
+    NodeAssignStmt(NodeExpression *_leftVar,
+                   NodeExpression *_rightExp);
     void genCode();
 };
 
@@ -137,9 +138,9 @@ public:
     bool ifExistElse;
 
     NodeIfElseStmt();
-    void setMember( NodeConditionExp *_condition,
-                    Node *_ifStatement,
-                    Node *_elseSatement = nullptr);
+    void setMember(NodeConditionExp *_condition,
+                   Node *_ifStatement,
+                   Node *_elseSatement = nullptr);
     void genCode();
 };
 
@@ -153,9 +154,9 @@ public:
     int startLabel;
 
     NodeWhileStmt();
-    void setMember( NodeConditionExp *_condition,
-                    Node *_loopStatement,
-                    Node *_nextStatement = nullptr);
+    void setMember(NodeConditionExp *_condition,
+                   Node *_loopStatement,
+                   Node *_nextStatement = nullptr);
     void genCode();
 };
 
@@ -191,11 +192,11 @@ public:
     int value;                          // constant to be folded
     bool ifTemp = false;                // true if it is a temparary expression
     
-    NodeExpression( NodeType _nodeType,
-                    NodeExpression *_son = nullptr,
-                    int _value = 0,
-                    Operator _opType = oNONE,
-                    const string &_nameSysY = "");
+    NodeExpression(NodeType _nodeType,
+                   NodeExpression *_son = nullptr,
+                   int _value = 0,
+                   Operator _opType = oNONE,
+                   const string &_nameSysY = "");
     void setBrother(Node *_brother);    // use Node * for some concern?
     virtual void newTemp();             // what does it mean?
     virtual void constantFold();        // fold constant "int value"
@@ -207,8 +208,8 @@ public:
     NodeExpression *expression;         // expression for translation
     string name;                        // name of the array
 
-    NodeArrayExp(   const char *_name,
-                    NodeExpression *_indexFirstDim);
+    NodeArrayExp(const char *_name,
+                 NodeExpression *_indexFirstDim);
     void constantFold();
 };
 
@@ -217,9 +218,9 @@ public:
     NodeExpression *lhsExp;             // left hand side expression
     NodeExpression *rhsExp;             // right hand side expression
 
-    NodeArithmeticExp(  Operator _opType,
-                        NodeExpression *_lhsExp,
-                        NodeExpression *_rhsExp = nullptr);
+    NodeArithmeticExp(Operator _opType,
+                      NodeExpression *_lhsExp,
+                      NodeExpression *_rhsExp = nullptr);
     void constantFold();
 };
 
@@ -230,9 +231,9 @@ public:
     int trueLabel;
     int falseLabel;
 
-    NodeConditionExp(   Operator _opType,
-                        NodeExpression *_lhsExp,
-                        NodeExpression *_rhsExp = nullptr);
+    NodeConditionExp(Operator _opType,
+                     NodeExpression *_lhsExp,
+                     NodeExpression *_rhsExp = nullptr);
     void traverse();                    // what does it mean?
 };
 

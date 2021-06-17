@@ -3,19 +3,21 @@
 
 using std::to_string;
 
-EntryVarSymbolTable::EntryVarSymbolTable(   const string &_nameSysY,
-                                            bool _ifConst,
-                                            bool _ifArray,
-                                            bool _ifParam,
-                                            const vector<int> &_width,
-                                            const vector<int> &_value)
+EntryVarSymbolTable::EntryVarSymbolTable(
+    const string &_nameSysY,
+    bool _ifConst,
+    bool _ifArray,
+    bool _ifParam,
+    const vector<int> &_width,
+    const vector<int> &_value)
     : ifConst(_ifConst), ifArray(_ifArray), ifParam(_ifParam), width(_width), value(_value) {
     // do nothing
     // !!NO ASSIGNMENT FOR NAMESYSY AND NAMEEEYORE!!
 }
 
-EntryFuncSymbolTable::EntryFuncSymbolTable( const string &_nameSysY,
-                                            ReturnType _retType)
+EntryFuncSymbolTable::EntryFuncSymbolTable(
+    const string &_nameSysY,
+    ReturnType _retType)
     : nameSysY(_nameSysY), retType(_retType) {
     nameEeyore = "f_" + nameSysY;
 }
@@ -53,12 +55,13 @@ SymbolTable::SymbolTable() {
     }
 }
 
-void SymbolTable::registerVar(  const string &name,
-                                bool ifConst,
-                                bool ifArray,
-                                bool ifParam,
-                                const vector<int> &width,
-                                const vector<int> &value) {
+void SymbolTable::registerVar(
+    const string &name,
+    bool ifConst,
+    bool ifArray,
+    bool ifParam,
+    const vector<int> &width,
+    const vector<int> &value) {
     EntryVarSymbolTable newEntryVar(name, ifConst, ifArray, ifParam, width, value);
 
     if (ifParam) {      // it is a parameter
@@ -77,8 +80,8 @@ void SymbolTable::registerVar(  const string &name,
     blockStack[blockId][name] = newEntryVar;
 }
 
-bool SymbolTable::findVar(  const string &name,
-                            EntryVarSymbolTable *retEntry) {
+bool SymbolTable::findVar(const string &name,
+                          EntryVarSymbolTable *retEntry) {
     for (int i = blockId; i >= 0; i--)
         if (blockStack[i].find(name) != blockStack[i].end()) {   // exist in stack
             assert(retEntry != nullptr);
@@ -88,14 +91,14 @@ bool SymbolTable::findVar(  const string &name,
     return false;
 }
 
-void SymbolTable::registerFunc( const char *name,
-                                ReturnType retType) {
+void SymbolTable::registerFunc(const char *name,
+                               ReturnType retType) {
     curFuncName = string(name);
     funcTable[curFuncName] = EntryFuncSymbolTable(curFuncName, retType);
 }
 
-bool SymbolTable::findFunc( const string &name,
-                            EntryFuncSymbolTable *retEntry) {
+bool SymbolTable::findFunc(const string &name,
+                           EntryFuncSymbolTable *retEntry) {
     if (funcTable.find(name) != funcTable.end()) {              // exist in table
         assert(retEntry != nullptr);
         *retEntry = funcTable[name];

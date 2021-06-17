@@ -2,8 +2,6 @@
 #include "assert.h"
 #include <stdio.h>
 
-#define SIZE_OF_INT 4
-
 using std::string;
 using std::vector;
 using std::to_string;
@@ -22,8 +20,8 @@ inline int newLabel() {
     return labelId++;
 }
 
-static string genVarDecl(   const EntryVarSymbolTable &entryVar,
-                            bool ifIdent) {
+static string genVarDecl(const EntryVarSymbolTable &entryVar,
+                         bool ifIdent) {
     // fprintf(logOut, "%s\n", __FUNCTION__);
 
     if (entryVar.ifParam)
@@ -168,14 +166,14 @@ void NodeVarDecl::genCode() {
     }
 }
 
-NodeFuncDecl::NodeFuncDecl( ReturnType _returnType,
-                            const char *_name,
-                            Node *_body)
+NodeFuncDecl::NodeFuncDecl(ReturnType _returnType,
+                           const char *_name,
+                           Node *_body)
     : body(_body), returnType(_returnType) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
     name = string(_name);
-    // ???CAN IFAPPEND NOT BE CONSIDERED???
+
     bool ifAppend = (body != nullptr);
     addReturn(ifAppend);
 
@@ -191,8 +189,11 @@ void NodeFuncDecl::addReturn(bool ifAppend) {
         nodeRet = new NodeReturnStmt(new NodeExpression(tNUM));
     else
         nodeRet = new NodeReturnStmt();
+    
     if (ifAppend) {
         Node *curNode = body;
+        // get the last BlockItem, and check whether it is a return statement
+        // add a return statement if it isn't
         while (curNode->brother)
             curNode = curNode->brother;
         if (string(typeid(*curNode).name()) != "14NodeReturnStmt")
@@ -212,7 +213,7 @@ void NodeFuncDecl::genCode() {
 
     // why we use size of paramList in function entry?
     // because the paramList in func-decl node is even not be modified and keep empty during the whole process!
-    code = "f_" + name + "[" + to_string(entryFunc.paramList.size()) + "]\n";
+    code = "f_" + name + " [" + to_string(entryFunc.paramList.size()) + "]\n";
     for (EntryVarSymbolTable i : entryFunc.symTabLocal)
         code += genVarDecl(i, true);
     // !!DONT UNDERSTAND!!
@@ -250,16 +251,16 @@ void NodeStatement::genCode() {
         code += son->code;
 }
 
-void NodeStatement::setMember(  NodeConditionExp *_condition,
-                                Node *_trueStatement,
-                                Node *_falseStatement) {
+void NodeStatement::setMember(NodeConditionExp *_condition,
+                              Node *_trueStatement,
+                              Node *_falseStatement) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
     // do nothing
 }
 
-NodeAssignStmt::NodeAssignStmt( NodeExpression *_leftVar,
-                                NodeExpression *_rightExp)
+NodeAssignStmt::NodeAssignStmt(NodeExpression *_leftVar,
+                               NodeExpression *_rightExp)
     : leftVar(_leftVar), rightExp(_rightExp) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
@@ -312,9 +313,9 @@ NodeIfElseStmt::NodeIfElseStmt() {
     globalFallLabel = newLabel();
 }
 
-void NodeIfElseStmt::setMember( NodeConditionExp *_condition,
-                                Node *_ifStatement,
-                                Node *_elseSatement) {
+void NodeIfElseStmt::setMember(NodeConditionExp *_condition,
+                               Node *_ifStatement,
+                               Node *_elseSatement) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
     condition = _condition;
@@ -362,9 +363,9 @@ NodeWhileStmt::NodeWhileStmt() {
     globalFallLabel = newLabel();
 }
 
-void NodeWhileStmt::setMember(  NodeConditionExp *_condition,
-                                Node *_loopStatement,
-                                Node *_nextStatement) {
+void NodeWhileStmt::setMember(NodeConditionExp *_condition,
+                              Node *_loopStatement,
+                              Node *_nextStatement) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
     condition = _condition;
@@ -439,11 +440,12 @@ void NodeReturnStmt::genCode() {
         code += "\treturn\n";
 }
 
-NodeExpression::NodeExpression( NodeType _nodeType,
-                                NodeExpression *_son,
-                                int _value,
-                                Operator _opType,
-                                const string &_nameSysY)
+NodeExpression::NodeExpression(
+    NodeType _nodeType,
+    NodeExpression *_son,
+    int _value,
+    Operator _opType,
+    const string &_nameSysY)
     : nodeType(_nodeType), son(_son), value(_value), opType(_opType), nameSysY(_nameSysY) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
@@ -493,8 +495,8 @@ void NodeExpression::constantFold() {
     return;
 }
 
-NodeArrayExp::NodeArrayExp( const char *_name,
-                            NodeExpression *_indexFirstDim)
+NodeArrayExp::NodeArrayExp(const char *_name,
+                           NodeExpression *_indexFirstDim)
     : NodeExpression(tARRAY) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
@@ -518,8 +520,9 @@ NodeArrayExp::NodeArrayExp( const char *_name,
 }
 
 /* generate index expression tree structure from "vector index" */
-static NodeExpression *indexUnfold( const vector<NodeExpression *> &index,
-                                    const EntryVarSymbolTable &entryArray) {
+static NodeExpression *indexUnfold(
+    const vector<NodeExpression *> &index,
+    const EntryVarSymbolTable &entryArray) {
     // fprintf(logOut, "%s\n", __FUNCTION__);
     
     if (index.empty())
@@ -598,9 +601,9 @@ void NodeArrayExp::constantFold() {
     }
 }
 
-NodeArithmeticExp::NodeArithmeticExp(   Operator _opType,
-                                        NodeExpression *_lhsExp,
-                                        NodeExpression *_rhsExp)
+NodeArithmeticExp::NodeArithmeticExp(Operator _opType,
+                                     NodeExpression *_lhsExp,
+                                     NodeExpression *_rhsExp)
     : NodeExpression(tUNKNOWN, nullptr, 0, _opType), lhsExp(_lhsExp), rhsExp(_rhsExp) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
@@ -714,9 +717,9 @@ void NodeArithmeticExp::constantFold() {
     nameSysY.append("+DONE");
 }
 
-NodeConditionExp::NodeConditionExp( Operator _opType,
-                                    NodeExpression *_lhsExp,
-                                    NodeExpression *_rhsExp)
+NodeConditionExp::NodeConditionExp(Operator _opType,
+                                   NodeExpression *_lhsExp,
+                                   NodeExpression *_rhsExp)
     : NodeExpression(tCOND, nullptr, 0, _opType), lhsExp(_lhsExp), rhsExp(_rhsExp) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
@@ -781,8 +784,9 @@ void NodeConditionExp::traverse() {
     }
 }
 
-NodeFunctionCallExp::NodeFunctionCallExp(   const char *_name,
-                                            NodeExpression *_paramFirst)
+NodeFunctionCallExp::NodeFunctionCallExp(
+    const char *_name,
+    NodeExpression *_paramFirst)
     : NodeExpression(tFUNCCALL) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     

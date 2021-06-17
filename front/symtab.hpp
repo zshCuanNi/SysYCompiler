@@ -48,8 +48,8 @@ public:
     ReturnType retType;
 
     EntryFuncSymbolTable() = default;
-    EntryFuncSymbolTable(   const string &_name,
-                            ReturnType _retType);
+    EntryFuncSymbolTable(const string &_name,
+                         ReturnType _retType);
 };
 
 class SymbolTable {
@@ -63,19 +63,19 @@ public:
     int curParamId = 0;
 
     SymbolTable();
-    void registerVar(   const string &name,
-                        bool ifConst = false,
-                        bool ifArray = false,
-                        bool ifParam = false,
-                        const vector<int> &width = vector<int>(),
-                        const vector<int> &value = vector<int>());
-    bool findVar(   const string &name,
-                    EntryVarSymbolTable *retEntry = nullptr);
+    void registerVar(const string &name,
+                     bool ifConst = false,
+                     bool ifArray = false,
+                     bool ifParam = false,
+                     const vector<int> &width = vector<int>(),
+                     const vector<int> &value = vector<int>());
+    bool findVar(const string &name,
+                 EntryVarSymbolTable *retEntry = nullptr);
 
     void registerFunc(const char *name,
                     ReturnType retType);
-    bool findFunc(  const string &name,
-                    EntryFuncSymbolTable *retEntry = nullptr);
+    bool findFunc(const string &name,
+                  EntryFuncSymbolTable *retEntry = nullptr);
 
     void blockInc();
     void blockDec();

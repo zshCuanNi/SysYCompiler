@@ -3,6 +3,8 @@ front_ori/
 front/compiler
 .vscode/
 eeyore_gen/
+tigger_gen/
+core
 
 
 # ignore all files with these extensions
@@ -12,3 +14,4 @@ eeyore_gen/
 *.log
 *.eeyore
 *.sh
+*=xim
