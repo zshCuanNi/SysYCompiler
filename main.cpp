@@ -13,6 +13,7 @@ SymbolTable symTab;
 
 FILE *eeyoreOut;
 FILE *tiggerOut;
+FILE *riscvOut;
 FILE *logOut;
 
 using std::string;
@@ -22,22 +23,26 @@ int main (int argc, char **argv) {
     yyin = fopen(argv[3], "r");
     
     string outFile(argv[5]);
-    string log, eeyore, tigger;
+    string log, eeyore, tigger, riscv;
     log = outFile.substr(0,outFile.find("."));
     eeyore = outFile.substr(0, outFile.find("."));
     tigger = outFile.substr(0, outFile.find("."));
+    riscv = outFile.substr(0, outFile.find("."));
+
     log = log.append(".log");
     eeyore = eeyore.append(".eeyore");
-    // tigger = tigger.append(".tigger");
-    tigger = outFile;
+    tigger = tigger.append(".tigger");
+    riscv = outFile;
     
     eeyoreOut = fopen(eeyore.c_str(), "w");
     tiggerOut = fopen(tigger.c_str(), "w");
+    riscvOut = fopen(riscv.c_str(), "w");
     logOut = fopen(log.c_str(), "a");
 
     assert(yyin);
     assert(eeyoreOut);
     assert(tiggerOut);
+    assert(riscvOut);
     assert(logOut);
 
     ASTRoot = new Node();
@@ -46,17 +51,18 @@ int main (int argc, char **argv) {
         yyparse();
     } while (!feof(yyin));
 
-    if (ASTRoot->code.empty()) printf("eww\n");
     fprintf(eeyoreOut, "%s", ASTRoot->code.c_str());
 
     // translate Eeyore to Tigger and/or RiscV
     ParserIC parser = ParserIC(ASTRoot->code, true, false);
 
     fprintf(tiggerOut, "%s", parser.codeTigger.c_str());
+    fprintf(riscvOut, "%s", parser.codeRiscV.c_str());
 
     fclose(yyin);
     fclose(eeyoreOut);
     fclose(tiggerOut);
+    fclose(riscvOut);
     fclose(logOut);
 
     return 0;

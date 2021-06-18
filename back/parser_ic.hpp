@@ -19,6 +19,7 @@ public:
     SymbolTableEE symTabEE;
     RuntimeEnv runtimeEnv;
     EntryFuncEE *entryCurFunc;
+    int STK;
 
     unordered_map<int, int> labels;    // <label id, lineno>
     vector<EENodeRight *> params;
@@ -49,6 +50,18 @@ public:
                       EENodeOp *array);
     void storeIntoStack(int regType,
                         EENodeRight *val);
+
+    string plusIndent(const string &text);
+    bool ifOutInt12(int val);
+    void genADDI(const string &reg1,
+                 const string &reg2,
+                 const int val);
+    void genSW(const string &reg1,
+               const string &reg2,
+               const int val);
+    void genLW(const string &reg1,
+               const string &reg2,
+               const int val);
 };
 
 #endif
