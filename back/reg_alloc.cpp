@@ -19,6 +19,7 @@ bool ParserIC::ifOutInt12(int val) {
 }
 
 void ParserIC::genADDI(const string &reg1, const string &reg2, const int val) {
+    ifSW = false;
     if (ifOutInt12(val))
         codeRiscV += "\t" + plusIndent("add") + reg1 + ", " + reg2 + ", s0\n";
     else 
@@ -26,6 +27,8 @@ void ParserIC::genADDI(const string &reg1, const string &reg2, const int val) {
 }
 
 void ParserIC::genSW(const string &reg1, const string &reg2, const int val) {
+    ifSW = true;
+    reg1SW = reg1, reg2SW = reg2, valSW = val;
     if (ifOutInt12(val))
         codeRiscV += "\t" + plusIndent("add") + "s0, " + reg2 + ", s0\n" +
                    + "\t" + plusIndent("sw") + reg1 + ", 0(s0)\n";
@@ -34,11 +37,16 @@ void ParserIC::genSW(const string &reg1, const string &reg2, const int val) {
 }
 
 void ParserIC::genLW(const string &reg1, const string &reg2, const int val) {
+    if (ifSW && reg1 == reg1SW && reg2 == reg2SW && val == valSW) {
+        ifSW = false;
+        return; 
+    }
     if (ifOutInt12(val))
         codeRiscV += "\t" + plusIndent("add") + "s0, " + reg2 + ", s0\n" +
                    + "\t" + plusIndent("lw") + reg1 + ", 0(s0)\n";
-    else
+    else {
         codeRiscV += "\t" + plusIndent("lw") + reg1 + ", " + to_string(val) + "(" + reg2 + ")\n";
+    }
 }
 
 void ParserIC::compile() {
@@ -59,6 +67,7 @@ void ParserIC::compile() {
         else 
             codeTigger += tv->nameTigger + " = 0\n";
         // riscv
+        ifSW = false;
         if (tv->ifArray)
             codeRiscV += "\t" + plusIndent(".comm") + tv->nameTigger + ", " + to_string(tv->width) + ", 4\n\n";
         else
@@ -109,6 +118,7 @@ void ParserIC::compile() {
         // tigger
         codeTigger += tf->name + " [" + to_string(tf->numParams) + "] [" + to_string(stackSize) + "]\n";
         // riscv
+        ifSW = false;
         string rname = tf->name.substr(2);
         STK = (stackSize / 4 + 1) * 16;
         codeRiscV += "\t" + plusIndent(".text") + "\n"
@@ -137,6 +147,7 @@ void ParserIC::compile() {
         // tigger
         codeTigger += "end " + tf->name + "\n";
         // riscv
+        ifSW = false;
         codeRiscV += "\t" + plusIndent(".size") + rname + ", .-" + rname + "\n\n";
     }
 }
@@ -200,7 +211,10 @@ void ParserIC::compileStmt(EENode *stmt) {
 
     // label generation
     if (stmt->label != -1) {
+        // tigger
         codeTigger += "l" + to_string(stmt->label) + ":\n";
+        // riscv
+        ifSW = false;
         codeRiscV += ".l" + to_string(stmt->label) + ":\n";
     }
 
@@ -220,6 +234,7 @@ void ParserIC::compileStmt(EENode *stmt) {
                 // tigger
                 codeTigger += "\t" + regReturn[0] + " = " + regCaller[1] + "\n";
                 // riscv
+                ifSW = false;
                 codeRiscV += "\t" + plusIndent("mv") + regReturn[0] + ", " + regCaller[1] + "\n";
             }
             
@@ -239,6 +254,7 @@ void ParserIC::compileStmt(EENode *stmt) {
                 // tigger
                 codeTigger += "\tgoto l" + to_string(stmtTmp->dstLabel) + "\n";
                 // riscv
+                ifSW = false;
                 codeRiscV += "\tj .l" + to_string(stmtTmp->dstLabel) + "\n";
             }
             else {  // if-goto
@@ -246,6 +262,7 @@ void ParserIC::compileStmt(EENode *stmt) {
                 // tigger
                 codeTigger += "\tif " + regCaller[1] + " != x0 goto l" + to_string(stmtTmp->dstLabel) + "\n";
                 // riscv
+                ifSW = false;
                 codeRiscV += "\tbne " + regCaller[1] + ", x0, .l" + to_string(stmtTmp->dstLabel) + "\n";
             }
             break;
@@ -281,6 +298,7 @@ void ParserIC::storeIntoReg(int regType,
         // tigger
         codeTigger += "\t" + reg + " = " + to_string(((EENodeNum *)val)->value) + "\n";
         // riscv
+        ifSW = false;
         codeRiscV += "\t" + plusIndent("li") + reg + ", " + to_string(((EENodeNum *)val)->value) + "\n";
     }
     // SYMBOL OR SYMBOL[NUM]
@@ -294,11 +312,17 @@ void ParserIC::storeIntoReg(int regType,
         if (symTabEE.funcTable["g"]->tmpVars.count(valTmp->name)) {
             tv = symTabEE.funcTable["g"]->tmpVars[valTmp->name];
             if (tv->ifArray) {
+                // tigger
                 codeTigger += "\tloadaddr " + tv->nameTigger + " " + reg + "\n";
+                // riscv
+                ifSW = false;
                 codeRiscV += "\t" + plusIndent("la") + reg + ", " + tv->nameTigger + "\n";
             }
             else {
+                // tigger
                 codeTigger += "\tload " + tv->nameTigger + " " + reg + "\n";
+                // riscv
+                ifSW = false;
                 codeRiscV += "\t" + plusIndent("lui") + reg + ", %hi(" + tv->nameTigger + ")\n"
                            + "\t" + plusIndent("lw") + reg + ", %lo(" + tv->nameTigger + ")(" + reg + ")\n";
             }
@@ -307,11 +331,15 @@ void ParserIC::storeIntoReg(int regType,
         else {
             EntryVarEE *tv = entryCurFunc->tmpVars[valTmp->name];
             if (tv->ifArray) {
+                // tigger
                 codeTigger += "\tloadaddr " + to_string(tv->addr) + " " + reg + "\n";
+                // riscv
                 genADDI(reg, "sp", tv->addr * 4);
             }
             else {
+                // tigger
                 codeTigger += "\tload " + to_string(tv->addr) + " " + reg + "\n";
+                // riscv
                 genLW(reg, "sp", tv->addr * 4);
             }
         }
@@ -330,7 +358,10 @@ void ParserIC::genCodeCall(EENodeCall *stmt) {
     for (int i = 0; i < stmt->params.size(); i++)
         genCodeAssign(20 + i, nullptr, stmt->params[i]);
     
+    // tigger
     codeTigger += "\tcall " + stmt->name + "\n";
+    // riscv
+    ifSW = false;
     codeRiscV += "\t" + plusIndent("call") + stmt->name.substr(2) + "\n";
 }
 
@@ -355,7 +386,9 @@ void ParserIC::genCodeAssign(int regType,
             genCodeArray(regCallerNo[1], regCallerNo[2], (EENodeOp *)left);
             storeIntoReg(regCallerNo[2], right);
             
+            // tigger
             codeTigger += "\tt1[0] = " + regCaller[2] + "\n";
+            // riscv
             genSW(regCaller[2], regCaller[1], 0);
             return;
         }
@@ -367,25 +400,36 @@ void ParserIC::genCodeAssign(int regType,
     
     switch(right->lineType) {
         case ltNUM:
+            // tigger
             codeTigger += "\t" + regName[rtLeft] + " = " + to_string(((EENodeNum *)right)->value) + "\n";
+            // riscv
+            ifSW = false;
             codeRiscV += "\t" + plusIndent("li") + regName[rtLeft] + ", " + to_string(((EENodeNum *)right)->value) + "\n";
             break;
         case ltSYMBOL:
             storeIntoReg(regCallerNo[2], right);
 
+            // tigger
             codeTigger += "\t" + regName[rtLeft] + " = " + regCaller[2] + "\n";
+            // riscv
+            ifSW = false;
             codeRiscV += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regCaller[2] + "\n";
             break;
         case ltARRAY:
             genCodeArray(regCallerNo[2], regCallerNo[3], (EENodeOp *)right);
 
+            // tigger
             codeTigger += "\t" + regName[rtLeft] + " = t2[0]\n";
+            // riscv
             genLW(regName[rtLeft], regCaller[2], 0);
             break;
         case ltCALL:
             genCodeCall((EENodeCall *)right);
             if (rtLeft != 0) {
+                // tigger
                 codeTigger += "\t" + regName[rtLeft] + " = a0\n";
+                // riscv
+                ifSW = false;
                 codeRiscV += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regReturn[0] + "\n";
             }
             break;
@@ -393,8 +437,11 @@ void ParserIC::genCodeAssign(int regType,
         {
             EENodeOp *rightTmp = (EENodeOp *)right;
             storeIntoReg(15, rightTmp->right);
-            // codeTigger += "\tt2 = " + rightTmp->opType + "t2\n";
+            
+            // tigger
             codeTigger += "\t" + regName[rtLeft] + " = " + rightTmp->opType + "t2\n";
+            // riscv
+            ifSW = false;
             switch (rightTmp->opType[0]) {
                 case '-':
                     codeRiscV += "\t" + plusIndent("neg") + regName[rtLeft] + ", " + regCaller[2] + "\n";
@@ -416,6 +463,7 @@ void ParserIC::genCodeAssign(int regType,
             // tigger
             codeTigger += "\t" + regName[rtLeft] + " = t2 " + rightTmp->opType + " t3\n";
             // riscv
+            ifSW = false;
             string reg1, reg2, reg3;
             reg1 = regName[rtLeft], reg2 = regCaller[2], reg3 = regCaller[3];
             string regComb = reg1 + ", " + reg2 + ", " + reg3 + "\n";
@@ -488,24 +536,34 @@ void ParserIC::genCodeArray(int rt1,
     if (symTabEE.funcTable["g"]->tmpVars.count(symbol->name)) {
         EntryVarEE *tv = symTabEE.funcTable["g"]->tmpVars[symbol->name];
 
+        // tigger
         codeTigger += "\tloadaddr " + tv->nameTigger + " " + reg1 + "\n";
+        // riscv
+        ifSW = false;
         codeRiscV += "\t" + plusIndent("la") + reg1 + ", " + tv->nameTigger + "\n";
     }
     else {
         EntryVarEE *tv = entryCurFunc->tmpVars[symbol->name];
         if (tv->ifArray) {
+            // tigger
             codeTigger += "\tloadaddr " + to_string(tv->addr) + " " + reg1 + "\n";
+            // riscv
             genADDI(reg1, "sp", tv->addr * 4);
         }
         else {
+            // tigger
             codeTigger += "\tload " + to_string(tv->addr) + " " + reg1 + "\n";
+            // riscv
             genLW(reg1, "sp", tv->addr * 4);
         }
     }
 
     storeIntoReg(rt2, array->right);
 
+    // tigger
     codeTigger += "\t" + reg1 + " = " + reg1 + " + " + reg2 + "\n";
+    // riscv
+    ifSW = false;
     codeRiscV += "\t" + plusIndent("add") + reg1 + ", " + reg1 + ", " + reg2 + "\n";
 }
 
@@ -526,12 +584,16 @@ void ParserIC::storeIntoStack(int regType,
         codeTigger += "\tloadaddr " + tv->nameTigger + " t6\n"
                     + "\tt6[0] = " + reg + "\n";
         // riscv
+        ifSW = false;
         codeRiscV += "\t" + plusIndent("la") + regCaller[6] + ", " + tv->nameTigger + "\n";
         genSW(reg, regCaller[6], 0);
     }
     else {
         EntryVarEE *tv = entryCurFunc->tmpVars[valTmp->name];
+
+        // tigger
         codeTigger +="\tstore " + reg + " " + to_string(tv->addr) + "\n";
+        // riscv
         genSW(reg, "sp", tv->addr * 4);
     }
     return;

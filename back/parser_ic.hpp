@@ -20,6 +20,9 @@ public:
     RuntimeEnv runtimeEnv;
     EntryFuncEE *entryCurFunc;
     int STK;
+    bool ifSW = false;
+    string reg1SW, reg2SW;
+    int valSW;
 
     unordered_map<int, int> labels;    // <label id, lineno>
     vector<EENodeRight *> params;
