@@ -20,9 +20,9 @@ using std::string;
 
 int main (int argc, char **argv) {
 
-    yyin = fopen(argv[3], "r");
+    yyin = fopen(argv[2], "r");
     
-    string outFile(argv[5]);
+    string outFile(argv[4]);
     string log, eeyore, tigger, riscv;
     log = outFile.substr(0,outFile.find("."));
     eeyore = outFile.substr(0, outFile.find("."));
