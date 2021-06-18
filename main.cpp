@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
+#include <unistd.h>
+#include <cstring>
 
 #include "front/symtab.hpp"
 #include "front/parser.tab.hpp"
@@ -19,20 +21,43 @@ FILE *logOut;
 using std::string;
 
 int main (int argc, char **argv) {
-
-    yyin = fopen(argv[2], "r");
+    int ch;
     
-    string outFile(argv[4]);
-    string log, eeyore, tigger, riscv;
-    log = outFile.substr(0,outFile.find("."));
-    eeyore = outFile.substr(0, outFile.find("."));
-    tigger = outFile.substr(0, outFile.find("."));
-    riscv = outFile.substr(0, outFile.find("."));
+    assert(strcmp("-S", argv[1]) == 0);
 
-    log = log.append(".log");
-    eeyore = eeyore.append(".eeyore");
-    tigger = tigger.append(".tigger");
-    riscv = outFile;
+    string outFile;
+    string log, eeyore, tigger, riscv;
+
+    if (argv[2][0] != '-') { // "./compiler -S testcase.c -o testcase.S"
+        yyin = fopen(argv[2], "r");
+        outFile = string(argv[4]);
+        log = eeyore = tigger = riscv = outFile.substr(0,outFile.find("."));
+
+        log = log.append(".log");
+        eeyore = eeyore.append(".eeyore");
+        tigger = tigger.append(".tigger");
+        riscv = outFile;
+    } else if (strcmp("-e", argv[2])) { // "./compiler -S -e testcase.c -o testcase.S"
+        yyin = fopen(argv[3], "r");
+        outFile = string(argv[5]);
+        log = eeyore = tigger = riscv = outFile.substr(0,outFile.find("."));
+
+        log = log.append(".log");
+        eeyore = outFile;
+        tigger = tigger.append(".tigger");
+        riscv = riscv.append(".riscv");
+    } else if (strcmp("-t", argv[2])) { // "./compiler -S -t testcase.c -o testcase.S"
+        yyin = fopen(argv[3], "r");
+        outFile = string(argv[5]);
+        log = eeyore = tigger = riscv = outFile.substr(0,outFile.find("."));
+
+        log = log.append(".log");
+        eeyore = eeyore.append(".eeyore");
+        tigger = outFile;
+        riscv = riscv.append(".riscv");
+    }
+
+    
     
     eeyoreOut = fopen(eeyore.c_str(), "w");
     tiggerOut = fopen(tigger.c_str(), "w");
@@ -54,7 +79,7 @@ int main (int argc, char **argv) {
     fprintf(eeyoreOut, "%s", ASTRoot->code.c_str());
 
     // translate Eeyore to Tigger and/or RiscV
-    ParserIC parser = ParserIC(ASTRoot->code, true, false);
+    ParserIC parser = ParserIC(ASTRoot->code, true);
 
     fprintf(tiggerOut, "%s", parser.codeTigger.c_str());
     fprintf(riscvOut, "%s", parser.codeRiscV.c_str());
