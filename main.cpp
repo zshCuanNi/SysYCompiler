@@ -37,7 +37,7 @@ int main (int argc, char **argv) {
         eeyore = eeyore.append(".eeyore");
         tigger = tigger.append(".tigger");
         riscv = outFile;
-    } else if (strcmp("-e", argv[2])) { // "./compiler -S -e testcase.c -o testcase.S"
+    } else if (strcmp("-e", argv[2])  == 0) { // "./compiler -S -e testcase.c -o testcase.S"
         yyin = fopen(argv[3], "r");
         outFile = string(argv[5]);
         log = eeyore = tigger = riscv = outFile.substr(0,outFile.find("."));
@@ -46,7 +46,7 @@ int main (int argc, char **argv) {
         eeyore = outFile;
         tigger = tigger.append(".tigger");
         riscv = riscv.append(".riscv");
-    } else if (strcmp("-t", argv[2])) { // "./compiler -S -t testcase.c -o testcase.S"
+    } else if (strcmp("-t", argv[2]) == 0) { // "./compiler -S -t testcase.c -o testcase.S"
         yyin = fopen(argv[3], "r");
         outFile = string(argv[5]);
         log = eeyore = tigger = riscv = outFile.substr(0,outFile.find("."));
