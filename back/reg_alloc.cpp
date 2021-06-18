@@ -374,7 +374,7 @@ void ParserIC::genCodeAssign(int regType,
             storeIntoReg(regCallerNo[2], right);
 
             codeTigger += "\t" + regName[rtLeft] + " = " + regCaller[2] + "\n";
-            codeTigger += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regCaller[2] + "\n";
+            codeRiscV += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regCaller[2] + "\n";
             break;
         case ltARRAY:
             genCodeArray(regCallerNo[2], regCallerNo[3], (EENodeOp *)right);
@@ -386,7 +386,7 @@ void ParserIC::genCodeAssign(int regType,
             genCodeCall((EENodeCall *)right);
             if (rtLeft != 0) {
                 codeTigger += "\t" + regName[rtLeft] + " = a0\n";
-                codeTigger += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regReturn[0] + "\n";
+                codeRiscV += "\t" + plusIndent("mv") + regName[rtLeft] + ", " + regReturn[0] + "\n";
             }
             break;
         case ltUNOP:
@@ -397,10 +397,10 @@ void ParserIC::genCodeAssign(int regType,
             codeTigger += "\t" + regName[rtLeft] + " = " + rightTmp->opType + "t2\n";
             switch (rightTmp->opType[0]) {
                 case '-':
-                    codeRiscV += "t" + plusIndent("neg") + regName[rtLeft] + ", " + regCaller[2] + "\n";
+                    codeRiscV += "\t" + plusIndent("neg") + regName[rtLeft] + ", " + regCaller[2] + "\n";
                     break;
                 case '!':
-                    codeRiscV += "t" + plusIndent("seqz") + regName[rtLeft] + ", " + regCaller[2] + "\n";
+                    codeRiscV += "\t" + plusIndent("seqz") + regName[rtLeft] + ", " + regCaller[2] + "\n";
                     break;
                 default:
                     break;
