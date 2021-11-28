@@ -103,7 +103,8 @@ void NodeVarDecl::setWidth(NodeExpression *_widthFirstDim) {
 
 vector<NodeExpression *> NodeVarDecl::setValue(
     vector<int> &_width,
-    NodeExpression *_valueFirst) {
+    NodeExpression *_valueFirst,
+    int filledSize) {
     // fprintf(logOut, "%s::%s\n", typeid(*this).name(), __FUNCTION__);
     
     vector<NodeExpression *> ret;
@@ -113,6 +114,7 @@ vector<NodeExpression *> NodeVarDecl::setValue(
         _valueFirst->newTemp();
         ret.push_back(_valueFirst);
     } else {                // an array
+        bool toFillZero = (filledSize == 0);
         int toFillSize = 1;
         for (int i : _width) toFillSize *= i;
         NodeExpression *curNode = _valueFirst;
@@ -122,23 +124,27 @@ vector<NodeExpression *> NodeVarDecl::setValue(
                 vector<int> nextWidth = _width;
                 nextWidth.erase(nextWidth.begin());
                 // get flattened tree from sons
-                vector<NodeExpression *> sonValues = setValue(nextWidth, curNode->son);
-                toFillSize -= sonValues.size();
+                int sonsToFillSize = toFillSize / _width[0];
+                int sonsFilledSize = filledSize % sonsToFillSize;
+                vector<NodeExpression *> sonValues = setValue(nextWidth, curNode->son, sonsFilledSize);
+                filledSize += sonValues.size();
                 for (NodeExpression *i : sonValues)
                     ret.push_back(i);
             } else {                            // a leaf node
                 curNode->constantFold();
                 curNode->newTemp();
                 ret.push_back(curNode);
-                --toFillSize;
+                filledSize++;
             }
             curNode = curNode->brother;
         }
-        // expression node of value 0
-        NodeExpression *zeroNode = new NodeExpression(tNUM);
-        // insert 0 behind
-        assert(toFillSize >= 0);
-        ret.insert(ret.end(), toFillSize, zeroNode);
+        if (toFillZero) {
+            // expression node of value 0
+            NodeExpression *zeroNode = new NodeExpression(tNUM);
+            // insert 0 behind
+            assert(toFillSize >= filledSize);
+            ret.insert(ret.end(), toFillSize - filledSize, zeroNode);
+        }
     }
 
     return ret;
@@ -154,7 +160,6 @@ void NodeVarDecl::genCode() {
     EntryVarSymbolTable entryVar;
     symTab.findVar(name, &entryVar);
     
-    // !!DONT UNDERSTSND!!
     if (symTab.blockId == BLOCK_GLOBAL) // declare global variable
         code = genVarDecl(entryVar, false);
     else if (!value.empty()) {          // initialize variable
@@ -216,7 +221,6 @@ void NodeFuncDecl::genCode() {
     code = "f_" + name + " [" + to_string(entryFunc.paramList.size()) + "]\n";
     for (EntryVarSymbolTable i : entryFunc.symTabLocal)
         code += genVarDecl(i, true);
-    // !!DONT UNDERSTAND!!
     // initialize global variable
     if (name == "main")
         for (auto i : symTab.blockStack[0]) {

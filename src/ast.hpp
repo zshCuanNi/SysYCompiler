@@ -82,7 +82,8 @@ public:
                 bool _ifParam = false);
     void setWidth(NodeExpression *_widthFirstDim);
     vector<NodeExpression *> setValue(vector<int> &_width,
-                                      NodeExpression *_valueFirst);
+                                      NodeExpression *_valueFirst,
+                                      int filledSize = 0);
     void genCode();
 };
 
