@@ -1,0 +1,7 @@
+build/
+tests/
+*.ee
+*.log
+*.riscv
+*.tigger
+*.sy
