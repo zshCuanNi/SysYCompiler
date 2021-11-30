@@ -739,18 +739,11 @@ void NodeConditionExp::traverse() {
         lhsExp->newTemp();
         code += lhsExp->code;
 
-        // if (trueLabel != globalFallLabel) {
-        //     if (falseLabel == globalFallLabel)
-        //         code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
-        //     else
-        //         code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
-        // } else if (falseLabel != globalFallLabel)
-        //     code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
-
         if (trueLabel != globalFallLabel) {
-            code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
-            if (falseLabel != globalFallLabel)
-                code += "\tgoto l" + to_string(falseLabel) + "\n";
+            if (falseLabel == globalFallLabel)
+                code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
+            else
+                code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
         } else if (falseLabel != globalFallLabel)
             code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
     } else {                    // not a leaf node
