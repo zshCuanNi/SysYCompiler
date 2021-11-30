@@ -741,7 +741,7 @@ void NodeConditionExp::traverse() {
 
         if (trueLabel != globalFallLabel) {
             if (falseLabel == globalFallLabel)
-                code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
+                code += "\tif " + lhsExp->nameEeyore + " != 0 goto l" + to_string(trueLabel) + "\n";
             else
                 code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
         } else if (falseLabel != globalFallLabel)
