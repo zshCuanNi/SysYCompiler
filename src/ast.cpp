@@ -738,25 +738,21 @@ void NodeConditionExp::traverse() {
         lhsExp->constantFold();
         lhsExp->newTemp();
         code += lhsExp->code;
-// 2: 0 3 0
-// 0: 2 0 0
-// 2: 0 1 0
-// 0: 2 1 0
-// 1
-// 0: 7 5 5
-// 2: 5 8 5
-// 0: 7 5 5
-// 2: 5 6 5
+
+        // if (trueLabel != globalFallLabel) {
+        //     if (falseLabel == globalFallLabel)
+        //         code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
+        //     else
+        //         code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
+        // } else if (falseLabel != globalFallLabel)
+        //     code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
 
         if (trueLabel != globalFallLabel) {
-            if (falseLabel == globalFallLabel)
-                code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
-            else
-                code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
-        }
-        else if (falseLabel != globalFallLabel) {
+            code += "\tif " + lhsExp->nameEeyore + " == 1 goto l" + to_string(trueLabel) + "\n";
+            if (falseLabel != globalFallLabel)
+                code += "\tgoto l" + to_string(falseLabel) + "\n";
+        } else if (falseLabel != globalFallLabel)
             code += "\tif " + lhsExp->nameEeyore + " == 0 goto l" + to_string(falseLabel) + "\n";
-        }
     } else {                    // not a leaf node
         NodeConditionExp *lhsCond = (NodeConditionExp *)lhsExp;
         NodeConditionExp *rhsCond = (NodeConditionExp *)rhsExp;
