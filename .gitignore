@@ -6,3 +6,4 @@ tests/
 *.riscv
 *.tigger
 *.sy
+*.S
